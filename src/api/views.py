@@ -1,3 +1,16 @@
-from django.shortcuts import render
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
-# Create your views here.
+from posts.models import Post
+from .serializers import PostSerializer
+from .filters import PostFilterSet
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def list_posts_view(request):
+    filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all())
+    qs = filters.qs
+    serializer = PostSerializer(qs, many=True)
+    return Response(serializer.data)
