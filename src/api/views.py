@@ -8,8 +8,9 @@ from .filters import PostFilterSet
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def list_posts_view(request):
+    print(f'{request.headers.values()=}')
     filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all())
     qs = filters.qs
     serializer = PostSerializer(qs, many=True)
