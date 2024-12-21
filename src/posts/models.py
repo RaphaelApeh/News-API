@@ -3,6 +3,8 @@ from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 
 from taggit.managers import TaggableManager
+from rest_framework.reverse import reverse
+
 
 User = get_user_model()
 
@@ -31,6 +33,13 @@ class Post(models.Model):
     def get_user_display_name(self):
 
         return self.user.get_full_name() or self.user.username
+    
+    def get_absolute_url(self):
+        return 
+    
+    def get_comments_url(self):
+        return
+
 
 class Comment(models.Model):
     
