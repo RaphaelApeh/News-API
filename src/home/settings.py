@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'taggit',
+    'rest_framework.authtoken',
     # Internal
     'posts'
 ]

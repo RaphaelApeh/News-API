@@ -37,7 +37,7 @@ class Post(models.Model):
         return self.user.get_full_name() or self.user.username
     
     def get_absolute_url(self):
-        return 
+        return reverse('post-detail', kwargs={'slug': self.slug})
     
     def get_comments_url(self):
         return
@@ -47,6 +47,9 @@ class Post(models.Model):
     
     def image_url(self)-> str:
         return settings.URL + self.image.url
+    
+    def get_timestamp_format(self):
+        return self.timestamp.strftime("%d/%m/%Y, %H:%M:%S")
 
 
 class Comment(models.Model):

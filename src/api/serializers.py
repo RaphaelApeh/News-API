@@ -1,4 +1,9 @@
+import datetime
+
+from django.conf import settings
+
 from rest_framework import serializers
+
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from posts.models import Post, Comment
@@ -20,8 +25,14 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     tags = TagListSerializerField()
     likes = serializers.IntegerField(source='likes_count')
     image = serializers.URLField(source='image_url')
+    timestamp = serializers.DateTimeField(source='get_timestamp_format')
     comments = CommentSerializer(many=True)
-    
+    detail_url = serializers.SerializerMethodField() 
+
     class Meta:
         model = Post
-        fields = ['user', 'title', 'image', 'tags', 'likes', 'slug','comments', 'timestamp']
+        fields = ['user', 'title', 'text', 'image', 'tags', 'likes', 'slug', 'detail_url', 'comments', 'timestamp']
+
+    def get_detail_url(self, obj):
+        
+        return settings.URL + obj.get_absolute_url()

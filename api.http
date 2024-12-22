@@ -1,1 +1,4 @@
-GET http://127.0.0.1:8000/api/v1/
+
+GET http://127.0.0.1:8000/api/v1/news/javascript-is-best/
+
+["Authorization: Bearer 150e0ef73bb802a51ae21821cb6286c1a321ebf5"]
