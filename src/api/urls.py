@@ -7,5 +7,8 @@ urlpatterns = [
     
     path('v1/news/<slug:slug>/', views.detail_post_view, name="post-detail"), 
     
-    path('v1/create/', views.create_post_view, name="post-create")
+    path('v1/create/', views.create_post_view, name="post-create"),
+
+    # Class Base View
+    path('v2/create', views.CreatePostView.as_view())
 ]

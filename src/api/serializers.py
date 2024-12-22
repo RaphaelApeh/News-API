@@ -24,9 +24,9 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     user = serializers.CharField(source='get_user_display_name')
     tags = TagListSerializerField()
     likes = serializers.IntegerField(source='likes_count')
-    image = serializers.URLField(source='image_url')
     timestamp = serializers.DateTimeField(source='get_timestamp_format')
     comments = CommentSerializer(many=True)
+    image = serializers.URLField(source='image_url')
     detail_url = serializers.SerializerMethodField() 
 
     class Meta:
