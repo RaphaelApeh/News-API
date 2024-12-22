@@ -17,15 +17,17 @@ def list_posts_view(request):
     filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all())
     qs = filters.qs
     post_response = paginator.paginate_queryset(qs, request)
-    serializer = PostSerializer(post_response, many=True)
+    serializer = PostSerializer(post_response, many=True, context={'exclude': ['image']})
     return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(["GET"])
-@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+@authentication_classes([authentication.SessionAuthentication, authentication.TokenAuthentication])
 def detail_post_view(request, slug: str):
     post = get_object_or_404(Post, slug=slug)
-    serializer = PostSerializer(post, many=False)    
+    print(request.META.get('HTTP_AUTHORIZATION'))
+    serializer = PostSerializer(post, many=False, context={'exclude':['detail_url', 'image']})    
     return Response(serializer.data)
 
 
@@ -42,4 +44,7 @@ class CreatePostView(generics.CreateAPIView):
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
     queryset = Post.objects.select_related('user').all()
     serializer_class = PostSerializer
+    from rest_framework import authentication
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(*args, **kwargs)
     
