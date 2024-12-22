@@ -18,6 +18,10 @@ python -m venv venv
 ```bash
 source bin/scritps/activate
 ```
+- **Installing requirements**
+```bash
+pip install -r requiremets.txt
+```
 - **.env**
 ```python
 DJANGO_DEBUG=True
