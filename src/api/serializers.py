@@ -28,15 +28,23 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     comments = CommentSerializer(many=True)
     images = serializers.URLField(source='image_url')
     detail_url = serializers.SerializerMethodField() 
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'user', 'title', 'text', 'image', 'images', 'tags', 'likes', 'slug', 'detail_url', 'comments', 'timestamp']
+        fields = ['id', 'user', 'title', 'text', 'image', 'images', 'tags', 'likes', 'slug', 'detail_url', 'comments', 'is_liked', 'timestamp']
 
     def get_detail_url(self, obj):
         
         return settings.URL + obj.get_absolute_url()
     
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request is None:
+            return False
+        req_user = request.user
+        return obj.likes.contains(req_user)
+
     def __init__(self, *args, **kwargs):
         context = kwargs.get('context', {})
         super().__init__(*args, **kwargs)
