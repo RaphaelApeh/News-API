@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Thirty parties
     'rest_framework',
+    'rest_framework_api_key',
     'django_filters',
     'taggit',
-    'rest_framework.authtoken',
+    'silk',
     # Internal
-    'posts'
+    'posts',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +58,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # silk
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = "home.urls"
