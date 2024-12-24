@@ -3,18 +3,22 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import permissions, authentication, parsers, generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes, authentication_classes, parser_classes
 
+from rest_framework_api_key.permissions import HasAPIKey
+
 from posts.models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, UserSerializer, UserRegistrationSerializer
 from .services import PostPagination
 from .filters import PostFilterSet
+from .permission import IsAdminOrReadOnly
 
 User = get_user_model()
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticatedOrReadOnly])
+@permission_classes([permissions.IsAuthenticated])
 def list_posts_view(request):
     paginator = PostPagination()
     filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all())
@@ -26,6 +30,7 @@ def list_posts_view(request):
 
 
 @api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
 @authentication_classes([authentication.SessionAuthentication, authentication.TokenAuthentication])
 def detail_post_view(request, slug: str):
     post = get_object_or_404(Post, slug=slug)
@@ -61,8 +66,31 @@ def user_post_like_view(request, slug):
     except Post.DoesNotExist:
 
         return Response({'Error':'post_id does not exists.'}, status=status.HTTP_404_NOT_FOUND)
+    
 
-class CreatePostView(generics.CreateAPIView):
-    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
-    queryset = Post.objects.select_related('user').all()
-    serializer_class = PostSerializer
+class UsersPostView(APIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        return self.queryset.filter(is_active=True)
+
+    def get(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        serializer = self.serializer_class(qs, many=True)
+        print(request)
+        return Response(serializer.data)
+
+
+class UserRegistrationView(APIView):
+
+    serializer_class = UserRegistrationSerializer
+    queryset = User.objects.filter(is_active=True)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'Success':'account created successfuly'})
+        return Response({'Error':'Invaid data.'})

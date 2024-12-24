@@ -16,6 +16,8 @@ urlpatterns = [
     path('v1/create/', views.create_post_view, name="post-create"),
 
     path('likes/<slug:slug>', views.user_post_like_view, name='user-likes'),
+
     # Class Base View
-    path('v2/create', views.CreatePostView.as_view())
+    path('register/', views.UserRegistrationView.as_view()),
+    path('users/', views.UsersPostView.as_view()),
 ]

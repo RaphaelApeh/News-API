@@ -1,12 +1,19 @@
 import datetime
 
 from django.conf import settings
+from django.db.models import Count
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
 
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from posts.models import Post, Comment
+
+
+User = get_user_model()
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -51,3 +58,26 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
         if context.get('exclude', []):
             for field_name in context['exclude']:
                 self.fields.pop(field_name, None)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    post_set = PostSerializer(many=True)
+    num_of_posts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'post_set', 'num_of_posts']
+    
+    def get_num_of_posts(self, obj):
+        return obj.post_set.count()
+    
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def create(self, validated_data):
+        password = validated_data.get('password')
+        validate_password(password) # raise ValidationError
+        return User.objects.create_user(**validated_data)
