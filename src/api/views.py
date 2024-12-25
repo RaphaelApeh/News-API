@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes, authentication_classes, parser_classes
 
-from rest_framework_api_key.permissions import HasAPIKey
-
 from posts.models import Post
 from .serializers import PostSerializer, UserSerializer, UserRegistrationSerializer
 from .services import PostPagination
@@ -21,7 +19,7 @@ User = get_user_model()
 @permission_classes([permissions.IsAuthenticated])
 def list_posts_view(request):
     paginator = PostPagination()
-    filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all())
+    filters = PostFilterSet(request.GET, queryset=Post.objects.select_related('user').all().order_by('-timestamp'))
     qs = filters.qs
     post_response = paginator.paginate_queryset(qs, request)
     serializer = PostSerializer(post_response, many=True, context={'exclude': ['image']})

@@ -1,10 +1,7 @@
-import datetime
-
 from django.conf import settings
-from django.db.models import Count
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
 
@@ -18,7 +15,7 @@ User = get_user_model()
 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-
+    timestamp = serializers.DateTimeField(source='post.get_timestamp_format')
     class Meta:
         model = Comment
         fields = ['user', 'text', 'timestamp']
@@ -34,18 +31,23 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(source='get_timestamp_format')
     comments = CommentSerializer(many=True)
     images = serializers.URLField(source='image_url')
+    like_url = serializers.SerializerMethodField()
     detail_url = serializers.SerializerMethodField() 
-    is_liked = serializers.SerializerMethodField()
+    req_user_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'user', 'title', 'text', 'image', 'images', 'tags', 'likes', 'slug', 'detail_url', 'comments', 'is_liked', 'timestamp']
+        fields = ['id', 'user', 'title', 'text', 'image', 'images', 'tags', 'likes', 'slug', 'detail_url', 'like_url', 'comments', 'req_user_liked', 'timestamp']
+
+    def get_like_url(self, obj):
+        bulid_url = settings.URL + reverse('user-likes', kwargs={'slug': obj.slug})
+        return bulid_url
 
     def get_detail_url(self, obj):
         
         return settings.URL + obj.get_absolute_url()
     
-    def get_is_liked(self, obj):
+    def get_req_user_liked(self, obj):
         request = self.context.get('request')
         if request is None:
             return False

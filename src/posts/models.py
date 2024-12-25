@@ -16,7 +16,7 @@ class Post(models.Model):
     text = models.TextField()
     tags = TaggableManager()
     likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
-    image = models.ImageField(upload_to='post_images')
+    image = models.ImageField(upload_to='post_images', default='default.jpg')
     slug = models.SlugField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
