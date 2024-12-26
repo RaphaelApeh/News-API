@@ -29,7 +29,6 @@ def list_posts_view(request):
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated])
-@authentication_classes([authentication.SessionAuthentication, authentication.TokenAuthentication])
 def detail_post_view(request, slug: str):
     post = get_object_or_404(Post, slug=slug)
     print(request.META.get('HTTP_AUTHORIZATION'))
@@ -39,9 +38,10 @@ def detail_post_view(request, slug: str):
 
 @api_view(['POST'])
 @parser_classes([parsers.MultiPartParser, parsers.FormParser])
+@permission_classes([permissions.IsAuthenticated])
 def create_post_view(request):
     serializer = PostSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         serializer.save()
         return Response(serializer.data)
 
@@ -65,6 +65,10 @@ def user_post_like_view(request, slug):
 
         return Response({'Error':'post_id does not exists.'}, status=status.HTTP_404_NOT_FOUND)
     
+
+@api_view(['GET', 'POST'])
+def logout_view(request):
+    ...
 
 class UsersPostView(APIView):
     serializer_class = UserSerializer

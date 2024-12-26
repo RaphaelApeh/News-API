@@ -20,7 +20,7 @@ class APIEndPointTestCase(APITestCase):
 
     def test_post_exists(self):
         post = Post.objects.all()
-        print(post.count())
+        self.assertTrue(post.exists())
 
     def test_list_posts(self):
         self.client.login(username=TEST_USERNAME, password=TEST_PASSWORD)
@@ -33,3 +33,6 @@ class APIEndPointTestCase(APITestCase):
         response = self.client.get(reverse('post-detail', kwargs={'slug': self.post.slug}))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_create_view(self):
+        ...
