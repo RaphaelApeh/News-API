@@ -1,7 +1,6 @@
 Django>5.1
 Pillow
 djangorestframework
-djangorestframework-api-key>=3.0
 django-taggit
 django-silk
 python-decouple
