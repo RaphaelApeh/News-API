@@ -1,6 +1,7 @@
 from rest_framework import generics
 
 from .permissions import IsOwnerOrReadOnly
+from .pagination import PostsPageNumberPagination
 
 from ..models import Post
 from ..serializers import PostSerializer
@@ -12,6 +13,7 @@ class PostListView(generics.ListCreateAPIView):
     """
     queryset = Post.objects.select_related("user")
     serializer_class = PostSerializer
+    pagination_class = PostsPageNumberPagination
 
 
     def get_queryset(self):
