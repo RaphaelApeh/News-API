@@ -25,11 +25,8 @@ class Post(models.Model):
         return f"{self.title} {self.user_id}"
     
     def save(self, **kwargs):
-        Klass = self.__class__
-        if not Klass.objects.filter(title=self.title).exists():
-            self.slug = slugify(self.title[:10])
-        else:
-            self.slug = slugify(self.title)[:10] + get_random_string(6)
+        if self.slug is None:
+            self.slug = slugify(self.title)[:10]
         super().save(**kwargs)
 
     @property

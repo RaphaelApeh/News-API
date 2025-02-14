@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from .models import Post, Comment
 
@@ -27,10 +28,16 @@ class PostSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
     comments = CommentSerializer(source="posts", many=True, read_only=True)
+    slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ["user", "title", "content", "status", "comments", "active", "timestamp"]
+        fields = ["user", "title", "slug", "content", "status", "comments", "active", "timestamp"]
+
+    def get_slug(self, obj):
+        request = self.context["request"]
+        post_detail_url = request.build_absolute_uri(reverse("posts-detail", kwargs={"slug": obj.slug}))
+        return post_detail_url
 
     def create(self, validated_data):
         

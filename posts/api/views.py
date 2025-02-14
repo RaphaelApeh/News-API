@@ -1,5 +1,7 @@
 from rest_framework import generics
 
+from .permissions import IsOwnerOrReadOnly
+
 from ..models import Post
 from ..serializers import PostSerializer
 
@@ -18,3 +20,11 @@ class PostListView(generics.ListCreateAPIView):
         if user:
             queryset = queryset.filter(user__username__icontains=user)
         return queryset
+    
+
+class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Post.objects.select_related("user").filter(active=True)
+    lookup_field = "slug"
+    serializer_class = PostSerializer
