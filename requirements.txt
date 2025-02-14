@@ -4,3 +4,4 @@ djangorestframework
 django-taggit
 django-silk
 python-decouple
+djangorestframework-simplejwt
