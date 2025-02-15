@@ -1,10 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+# from django_filters import rest_framework as filters
+
 from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
 from ..models import Post
+# from ..filters import PostFilterSet
 from ..serializers import (
     PostSerializer,
     CommentSerializer
@@ -18,7 +21,8 @@ class PostListView(generics.ListCreateAPIView):
     queryset = Post.objects.select_related("user").order_by("-timestamp")
     serializer_class = PostSerializer
     pagination_class = PostsPageNumberPagination
-
+    # filter_backends = [filters.DjangoFilterBackend]
+    # filterset = PostFilterSet
 
     def get_queryset(self):
         queryset = super().get_queryset()
