@@ -1,17 +1,24 @@
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
 
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
-from ..models import Post
-from ..serializers import PostSerializer
+from ..models import (
+    Post,
+    Comment
+    )
+from ..serializers import (
+    PostSerializer,
+    CommentSerializer
+    )
 
 
 class PostListView(generics.ListCreateAPIView):
     """
     List of posts
     """
-    queryset = Post.objects.select_related("user")
+    queryset = Post.objects.select_related("user").order_by("-timestamp")
     serializer_class = PostSerializer
     pagination_class = PostsPageNumberPagination
 
@@ -26,7 +33,30 @@ class PostListView(generics.ListCreateAPIView):
 
 class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrCanComment]
     queryset = Post.objects.select_related("user").filter(active=True)
     lookup_field = "slug"
     serializer_class = PostSerializer
+
+    def get_serializer_class(self):
+        
+        if self.request.method == "POST":
+            return CommentSerializer
+        return self.serializer_class
+
+    def create(self, request, *args, **kwargs):
+        """
+        users can add comment to a post
+        """
+        serializer = self.get_serializer(data=self.request.data)
+        
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response({"message": serializer.data["content"]}, status.HTTP_201_CREATED)
+        return Response({"error": serializer.errors}, status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        serializer.save(post=self.get_object(), user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
