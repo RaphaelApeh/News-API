@@ -4,10 +4,7 @@ from rest_framework.response import Response
 from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
-from ..models import (
-    Post,
-    Comment
-    )
+from ..models import Post
 from ..serializers import (
     PostSerializer,
     CommentSerializer

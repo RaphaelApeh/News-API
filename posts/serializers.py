@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
@@ -45,3 +47,13 @@ class PostSerializer(serializers.ModelSerializer):
         
         user = self.context["request"].user
         return Post.objects.create(user=user, **validated_data)
+    
+    def update(self, instance, validated_data):
+        
+        with transaction.atomic():
+            for name, value in validated_data.items():
+                setattr(instance, name, value)
+                if name == "title":
+                    instance.slug = slugify(value)
+                instance.save()
+        return instance
