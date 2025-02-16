@@ -61,3 +61,12 @@ class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+    
+
+class UserPostsListView(generics.ListAPIView):
+
+    queryset = Post.objects.prefetch_related("posts")
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
