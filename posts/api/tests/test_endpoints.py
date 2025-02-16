@@ -10,14 +10,13 @@ from ...models import Post
 
 User = get_user_model()
 
-@tag("posts", "post")
+@tag("endpoints", "api")
 class PostAPITestCase(APITestCase):
 
     def setUp(self):
         user = User.objects.create_user("admin", "testpassword")
         Post.objects.create(user=user, title="A terrible title", content=" ".join(WORDS))
         self.user = user
-        return super().setUp()
 
     def test_posts_list_view(self):
         user = User.objects.first()
@@ -45,4 +44,28 @@ class PostAPITestCase(APITestCase):
         }
         response = self.client.post(reverse("posts-list"), data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+    def test_update_post_detail(self):
+
+        self.client.force_login(self.user)
+        obj = Post.objects.first()
+        data = {
+            "title": obj.title,
+            "content": "A good article content!",
+            "status": "draft"
+        }
+        response = self.client.put(reverse("posts-detail", kwargs={"slug": obj.slug}), data)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+    def test_delete_post_detail(self):
+
+        self.client.force_login(self.user)
+        obj = Post.objects.first()
+
+        response = self.client.delete(reverse("posts-detail", kwargs={"slug": obj.slug}),)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

@@ -31,7 +31,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
-    comments = CommentSerializer(source="posts", many=True, read_only=True)
+    comments = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
 
     class Meta:
@@ -42,6 +42,12 @@ class PostSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         post_detail_url = request.build_absolute_uri(reverse("posts-detail", kwargs={"slug": obj.slug}))
         return post_detail_url
+    
+    def get_comments(self, obj):
+        request = self.context["request"]
+        query = int(request.query_params.get("comment_limits", 2))
+        qs = obj.posts.all()[:query]
+        return CommentSerializer(qs, many=True, read_only=True).data
 
     def create(self, validated_data):
         
@@ -51,9 +57,9 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         
         with transaction.atomic():
-            for name, value in validated_data.items():
-                setattr(instance, name, value)
-                if name == "title":
+            for key, value in validated_data.items():
+                setattr(instance, key, value)
+                if key == "title":
                     instance.slug = slugify(value)
                 instance.save()
         return instance
