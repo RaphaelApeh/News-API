@@ -3,6 +3,7 @@ from rest_framework.response import Response
 
 # from django_filters import rest_framework as filters
 
+from .mixins import DisAllowAuthMixin
 from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
@@ -14,7 +15,7 @@ from ..serializers import (
     )
 
 
-class PostListView(generics.ListCreateAPIView):
+class PostListView(DisAllowAuthMixin, generics.ListCreateAPIView):
     """
     List of posts
     """
@@ -32,7 +33,7 @@ class PostListView(generics.ListCreateAPIView):
         return queryset
     
 
-class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+class PostRetrieveView(DisAllowAuthMixin, generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = [IsOwnerOrCanComment]
     queryset = Post.objects.select_related("user").filter(active=True)
