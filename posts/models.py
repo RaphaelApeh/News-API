@@ -15,6 +15,7 @@ class Post(models.Model):
     title = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(blank=True, null=True, unique=True)
     content = models.TextField()
+    image = models.ImageField(default="default.jpg")
     status = models.CharField(max_length=15, choices=StatusChoices.choices, default=StatusChoices.ACTIVE)
     active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
