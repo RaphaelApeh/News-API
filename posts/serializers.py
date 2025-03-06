@@ -32,13 +32,13 @@ class PostSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
     comments = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField()
+    detail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ["user", "title", "slug", "content", "status", "comments", "active", "timestamp"]
+        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "detail_url", "timestamp"]
 
-    def get_slug(self, obj):
+    def get_detail_url(self, obj):
         request = self.context["request"]
         post_detail_url = request.build_absolute_uri(reverse("posts-detail", kwargs={"slug": obj.slug}))
         return post_detail_url
