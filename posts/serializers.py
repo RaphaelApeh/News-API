@@ -1,6 +1,6 @@
 from django.db import transaction
-from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.utils.text import slugify, Truncator
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -37,12 +37,13 @@ class PostSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
     comments = serializers.SerializerMethodField()
+    truncated_content = serializers.SerializerMethodField()
     detail_url = serializers.SerializerMethodField()
     timestamp = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "image", "detail_url", "timestamp"]
+        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "truncated_content", "image", "detail_url", "timestamp"]
 
     def get_detail_url(self, obj):
         request = self.context["request"]
@@ -58,6 +59,10 @@ class PostSerializer(serializers.ModelSerializer):
         query = int(request.query_params.get("comment_limits", 2))
         qs = obj.posts.all()[:query]
         return CommentSerializer(qs, many=True, read_only=True).data
+
+    def get_truncated_content(self, obj):
+
+        return Truncator(obj.content).words(20)
 
     def create(self, validated_data):
         
