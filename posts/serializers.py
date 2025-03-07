@@ -21,18 +21,24 @@ class CommentSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
 
+    timestamp = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
         fields = ["user", "content", "timestamp"]
         extra_kwargs = {
             "timestamp": {"required": False}
         }    
+    
+    def get_timestamp(self, obj):
+        return  obj.timestamp.strftime("%d-%m-%Y")
 
 class PostSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
     comments = serializers.SerializerMethodField()
     detail_url = serializers.SerializerMethodField()
+    timestamp = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -42,6 +48,10 @@ class PostSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         post_detail_url = request.build_absolute_uri(reverse("posts-detail", kwargs={"slug": obj.slug}))
         return post_detail_url
+    
+    def get_timestamp(self, obj: Post):
+        
+        return obj.timestamp.strftime("%c")
     
     def get_comments(self, obj):
         request = self.context["request"]
