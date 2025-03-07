@@ -36,7 +36,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "detail_url", "timestamp"]
+        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "image", "detail_url", "timestamp"]
 
     def get_detail_url(self, obj):
         request = self.context["request"]
