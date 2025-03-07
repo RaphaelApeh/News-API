@@ -46,6 +46,12 @@ class PostRetrieveView(DisAllowAuthMixin, generics.RetrieveUpdateDestroyAPIView)
             return CommentSerializer
         return self.serializer_class
 
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        if isinstance(response, Response):
+            response.data["can_edit_or_update"] = True if request.user.is_authenticated and request.user == self.get_object().user else False
+        return response
+
     def create(self, request, *args, **kwargs):
         """
         users can add comment to a post
