@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -11,8 +12,12 @@ from ..models import Post
 # from ..filters import PostFilterSet
 from ..serializers import (
     PostSerializer,
-    CommentSerializer
+    CommentSerializer,
+    UserRegisterSerializer
     )
+
+
+User = get_user_model()
 
 
 class PostListView(DisAllowAuthMixin, generics.ListCreateAPIView):
@@ -77,3 +82,12 @@ class UserPostsListView(generics.ListAPIView):
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
+
+
+
+class UserRegisterView(generics.ListCreateAPIView):
+
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserRegisterSerializer
+    permission_classes = []
+    authentication_classes = []

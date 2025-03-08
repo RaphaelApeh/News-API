@@ -10,6 +10,35 @@ from .models import Post, Comment
 User = get_user_model()
 
 
+class PasswordField(serializers.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs["style"] = {}
+        kwargs["style"]["input_type"] = "password"
+        kwargs["write_only"] = True
+
+        super().__init__(*args, **kwargs)
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+
+    password = PasswordField()
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "password"
+        )
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        user =  User(username=validated_data["username"], email=validated_data["email"])
+        user.set_password(password)
+        user.save()
+        return user
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
