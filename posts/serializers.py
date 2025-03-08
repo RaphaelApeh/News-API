@@ -21,14 +21,23 @@ class PasswordField(serializers.CharField):
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     password = PasswordField()
+    password2 = PasswordField()
 
     class Meta:
         model = User
         fields = (
             "username",
             "email",
-            "password"
+            "password",
+            "password2"
         )
+
+    def validate(self, attrs):
+        password = attrs["password"]
+        password2 = attrs["password2"]
+        if password != password2:
+            raise serializers.ValidationError("password not match.")
+        return super().validate(attrs)
 
     def create(self, validated_data):
         password = validated_data.pop("password")
