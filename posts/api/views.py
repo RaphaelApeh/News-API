@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 # from django_filters import rest_framework as filters
 
@@ -91,3 +93,35 @@ class UserRegisterView(generics.ListCreateAPIView):
     serializer_class = UserRegisterSerializer
     permission_classes = []
     authentication_classes = []
+
+
+class TokenObtainView(TokenObtainPairView):
+
+    def post(self, request, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        username = request.data["username"]
+        password = request.data["password"]
+        user = self.get_user(username, password)
+        data = {
+            "user_id": user.pk,
+            "username": user.username,
+            "refresh": serializer.validated_data["refresh"],
+            "access": serializer.validated_data["access"]
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
+    @classmethod
+    def get_user(cls, username: str, password: str):
+        try:
+            user = User.objects.get(username=username)
+        except (User.DoesNotExist, User.MultipleObjectsReturned):
+            return
+        else:
+            if user.check_password(password):
+                return user
+            return None
