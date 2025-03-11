@@ -56,7 +56,7 @@ class PostRetrieveView(DisAllowAuthMixin, generics.RetrieveUpdateDestroyAPIView)
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         if isinstance(response, Response):
-            response.data["can_edit_or_update"] = True if request.user.is_authenticated and request.user == self.get_object().user else False
+            response.data["can_edit_or_update"] = request.user == self.get_object().user
         return response
 
     def create(self, request, *args, **kwargs):

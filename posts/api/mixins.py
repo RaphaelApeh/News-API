@@ -1,7 +1,8 @@
 
 class DisAllowAuthMixin:
     def get_authenticators(self):
-        if self.request.user.is_anonymous and self.request.method == "GET":
+        
+        if any([self.request.user.is_anonymous, self.request.method == "GET"]):
             self.authentication_classes = []
         return super().get_authenticators()
 
