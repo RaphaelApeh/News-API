@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
@@ -40,9 +41,9 @@ class PostListView(DisAllowAuthMixin, generics.ListCreateAPIView):
         return queryset
     
 
-class PostRetrieveView(DisAllowAuthMixin, generics.RetrieveUpdateDestroyAPIView):
+class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
-    permission_classes = [IsOwnerOrCanComment]
+    permission_classes = [IsOwnerOrCanComment, IsAuthenticated]
     queryset = Post.objects.select_related("user").filter(active=True)
     lookup_field = "slug"
     serializer_class = PostSerializer
@@ -107,12 +108,14 @@ class TokenObtainView(TokenObtainPairView):
         username = request.data["username"]
         password = request.data["password"]
         user = self.get_user(username, password)
-        data = {
-            "user_id": user.pk,
-            "username": user.username,
-            "refresh": serializer.validated_data["refresh"],
-            "access": serializer.validated_data["access"]
-        }
+        data = serializer.validated_data
+        if user is not None:
+            data = {
+                "user_id": user.pk,
+                "username": user.username,
+                "refresh": serializer.validated_data["refresh"],
+                "access": serializer.validated_data["access"]
+            }
         return Response(data, status=status.HTTP_200_OK)
     
     @classmethod
