@@ -63,7 +63,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ["user", "content", "timestamp"]
+        fields = ["id", "user", "content", "timestamp"]
         extra_kwargs = {
             "timestamp": {"required": False}
         }    
