@@ -64,9 +64,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "user", "content", "timestamp"]
-        extra_kwargs = {
-            "timestamp": {"required": False}
-        }    
+           
     
     def get_timestamp(self, obj):
         return  obj.timestamp.strftime("%d-%m-%Y")
@@ -77,11 +75,15 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     truncated_content = serializers.SerializerMethodField()
     detail_url = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
     timestamp = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "truncated_content", "image", "detail_url", "timestamp"]
+        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "truncated_content", "image", "detail_url", "comment_count", "timestamp"]
+
+    def get_comment_count(self, obj):
+        return obj.posts.count()
 
     def get_detail_url(self, obj):
         request = self.context["request"]
@@ -95,7 +97,7 @@ class PostSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         request = self.context["request"]
         query = int(request.query_params.get("comment_limits", 2))
-        qs = obj.posts.all()[:query]
+        qs = obj.posts.order_by("-timestamp")[:query]
         return CommentSerializer(qs, many=True, read_only=True).data
 
     def get_truncated_content(self, obj):
