@@ -77,10 +77,11 @@ class PostSerializer(serializers.ModelSerializer):
     detail_url = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
     timestamp = serializers.SerializerMethodField()
+    slug = serializers.CharField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ["id", "user", "title", "slug", "content", "status", "comments", "active", "truncated_content", "image", "detail_url", "comment_count", "timestamp"]
+        fields = ["id", "user", "title", "slug", "content", "status", "comments", "truncated_content", "image", "detail_url", "comment_count", "timestamp"]
 
     def get_comment_count(self, obj):
         return obj.posts.count()
