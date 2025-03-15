@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, status
+from rest_framework import generics, status, parsers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -23,7 +23,7 @@ from ..serializers import (
 User = get_user_model()
 
 
-class PostListView(DisAllowAuthMixin, generics.ListCreateAPIView):
+class PostListView(generics.ListCreateAPIView):
     """
     List of posts
     """
