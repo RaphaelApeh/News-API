@@ -1,5 +1,8 @@
-from django.contrib.auth import get_user_model
-from rest_framework import generics, status, parsers
+from django.contrib.auth import (
+    get_user_model,
+    authenticate
+)
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -106,7 +109,7 @@ class TokenObtainView(TokenObtainPairView):
             raise InvalidToken(e.args[0])
         username = request.data["username"]
         password = request.data["password"]
-        user = self.get_user(username, password)
+        user = self.get_user(username=username, password=password)
         data = serializer.validated_data
         if user is not None:
             data = {
@@ -118,12 +121,8 @@ class TokenObtainView(TokenObtainPairView):
         return Response(data, status=status.HTTP_200_OK)
     
     @classmethod
-    def get_user(cls, username: str, password: str):
-        try:
-            user = User.objects.get(username=username)
-        except (User.DoesNotExist, User.MultipleObjectsReturned):
-            return
-        else:
-            if user.check_password(password):
-                return user
-            return None
+    def get_user(cls, **credentials):
+        
+        user = authenticate(cls.request, credentials)
+
+        return user
