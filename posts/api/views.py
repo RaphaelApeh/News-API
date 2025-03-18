@@ -7,7 +7,6 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 # from django_filters import rest_framework as filters
 
-from .mixins import DisAllowAuthMixin
 from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
