@@ -1,7 +1,4 @@
-from django.contrib.auth import (
-    get_user_model,
-    authenticate
-)
+from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -121,8 +118,11 @@ class TokenObtainView(TokenObtainPairView):
         return Response(data, status=status.HTTP_200_OK)
     
     @classmethod
-    def get_user(cls, **credentials):
+    def get_user(cls, username, password):
         
-        user = authenticate(cls.request, credentials)
-
-        return user
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return None
+        else:
+            return user if user.check_password(password) else None
