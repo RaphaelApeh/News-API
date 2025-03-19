@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
@@ -29,6 +28,7 @@ class PostListView(generics.ListCreateAPIView):
     queryset = Post.objects.select_related("user").order_by("-timestamp")
     serializer_class = PostSerializer
     pagination_class = PostsPageNumberPagination
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     # filter_backends = [filters.DjangoFilterBackend]
     # filterset = PostFilterSet
 
@@ -42,7 +42,7 @@ class PostListView(generics.ListCreateAPIView):
 
 class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
-    permission_classes = [IsOwnerOrCanComment, IsAuthenticated]
+    permission_classes = [IsOwnerOrCanComment, permissions.IsAuthenticated]
     queryset = Post.objects.select_related("user").filter(active=True)
     lookup_field = "slug"
     serializer_class = PostSerializer
