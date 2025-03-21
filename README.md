@@ -35,6 +35,8 @@ DJANGO_SECRET_KEY="secret-key"
 ```bash
 python manage.py shell --command="from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())"
 ```
+### React Frontend ✨
+[react link](https://github.com/RaphaelApeh/newsapi-frontend)
 - **Run the development server**
 ```bash
 python manage.py runserver
