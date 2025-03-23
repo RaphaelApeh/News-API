@@ -10,7 +10,7 @@ from .permissions import IsOwnerOrCanComment
 from .pagination import PostsPageNumberPagination
 
 from ..models import Post
-# from ..filters import PostFilterSet
+from ..filters import PostFilterBackend
 from ..serializers import (
     PostSerializer,
     CommentSerializer,
@@ -29,8 +29,8 @@ class PostListView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     pagination_class = PostsPageNumberPagination
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    # filter_backends = [filters.DjangoFilterBackend]
-    # filterset = PostFilterSet
+    filter_backends = [PostFilterBackend]
+    search_fields = ["title", "content"]
 
     def get_queryset(self):
         queryset = super().get_queryset()
