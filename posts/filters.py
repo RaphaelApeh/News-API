@@ -11,10 +11,9 @@ class PostFilterBackend(BaseFilterBackend):
     def _query_params(self, request, /):
         return request.query_params.copy()
 
-
     def filter_queryset(self, request, queryset, view):
         if not hasattr(view, "search_fields"):
-            return queryset.none() # []
+            return queryset.none()  # []
         fields = getattr(view, "search_fields")
         query_params = getattr(view, "query_params", "search")
         _query = self._query_params(request).get(query_params)
@@ -27,15 +26,12 @@ class PostFilterBackend(BaseFilterBackend):
             except FieldError:
                 return queryset.none()
         return queryset.all()
-    
+
     def to_html(self, request, queryset, view):
 
         if not getattr(view, "search_fields", None):
             return ""
         template = loader.get_template(self.template_name)
         query_params = getattr(view, "query_params", "search")
-        context = {
-            "query_params": query_params
-        }
+        context = {"query_params": query_params}
         return template.render(context, request)
-                

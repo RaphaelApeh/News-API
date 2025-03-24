@@ -12,6 +12,7 @@ class StatusChoices(models.TextChoices):
     PENDING = "pending", "Pending"
     DRAFT = "draft", "Draft"
 
+
 class Post(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -19,7 +20,9 @@ class Post(models.Model):
     slug = models.SlugField(blank=True, null=True)
     content = models.TextField()
     image = models.ImageField(default="default.jpg")
-    status = models.CharField(max_length=15, choices=StatusChoices.choices, default=StatusChoices.ACTIVE)
+    status = models.CharField(
+        max_length=15, choices=StatusChoices.choices, default=StatusChoices.ACTIVE
+    )
     active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)

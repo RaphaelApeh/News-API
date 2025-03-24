@@ -9,11 +9,7 @@ from .pagination import PostsPageNumberPagination
 
 from ..models import Post
 from ..filters import PostFilterBackend
-from ..serializers import (
-    PostSerializer,
-    CommentSerializer,
-    UserRegisterSerializer
-    )
+from ..serializers import PostSerializer, CommentSerializer, UserRegisterSerializer
 
 
 User = get_user_model()
@@ -23,6 +19,7 @@ class PostListView(generics.ListCreateAPIView):
     """
     List of posts
     """
+
     queryset = Post.objects.select_related("user").order_by("-timestamp")
     serializer_class = PostSerializer
     pagination_class = PostsPageNumberPagination
@@ -36,7 +33,7 @@ class PostListView(generics.ListCreateAPIView):
         if user:
             queryset = queryset.filter(user__username__icontains=user)
         return queryset
-    
+
 
 class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -46,7 +43,7 @@ class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
 
     def get_serializer_class(self):
-        
+
         if self.request.method == "POST":
             return CommentSerializer
         return self.serializer_class
@@ -62,10 +59,12 @@ class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
         users can add comment to a post
         """
         serializer = self.get_serializer(data=self.request.data)
-        
+
         if serializer.is_valid():
             self.perform_create(serializer)
-            return Response({"message": serializer.data["content"]}, status.HTTP_201_CREATED)
+            return Response(
+                {"message": serializer.data["content"]}, status.HTTP_201_CREATED
+            )
         return Response({"error": serializer.errors}, status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
@@ -73,7 +72,7 @@ class PostRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-    
+
 
 class UserPostsListView(generics.ListAPIView):
 
@@ -82,7 +81,6 @@ class UserPostsListView(generics.ListAPIView):
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
-
 
 
 class UserRegisterView(generics.ListCreateAPIView):
@@ -97,7 +95,7 @@ class TokenObtainView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
-        
+
         try:
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
@@ -111,13 +109,13 @@ class TokenObtainView(TokenObtainPairView):
                 "user_id": user.pk,
                 "username": user.username,
                 "refresh": serializer.validated_data["refresh"],
-                "access": serializer.validated_data["access"]
+                "access": serializer.validated_data["access"],
             }
         return Response(data, status=status.HTTP_200_OK)
-    
+
     @classmethod
     def get_user(cls, username, password):
-        
+
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:

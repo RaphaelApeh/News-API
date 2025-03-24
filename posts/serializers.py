@@ -18,6 +18,7 @@ class PasswordField(serializers.CharField):
 
         super().__init__(*args, **kwargs)
 
+
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     password = PasswordField()
@@ -25,12 +26,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            "username",
-            "email",
-            "password",
-            "password2"
-        )
+        fields = ("username", "email", "password", "password2")
 
     def validate(self, attrs):
         password = attrs["password"]
@@ -42,7 +38,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password")
 
-        user =  User(username=validated_data["username"], email=validated_data["email"])
+        user = User(username=validated_data["username"], email=validated_data["email"])
         user.set_password(password)
         user.save()
         return user
@@ -64,10 +60,10 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "user", "content", "timestamp"]
-           
-    
+
     def get_timestamp(self, obj):
-        return  obj.timestamp.strftime("%d-%m-%Y")
+        return obj.timestamp.strftime("%d-%m-%Y")
+
 
 class PostSerializer(serializers.ModelSerializer):
 
@@ -81,20 +77,35 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["id", "user", "title", "slug", "content", "status", "comments", "truncated_content", "image", "detail_url", "comment_count", "timestamp"]
+        fields = [
+            "id",
+            "user",
+            "title",
+            "slug",
+            "content",
+            "status",
+            "comments",
+            "truncated_content",
+            "image",
+            "detail_url",
+            "comment_count",
+            "timestamp",
+        ]
 
     def get_comment_count(self, obj):
         return obj.posts.count()
 
     def get_detail_url(self, obj):
         request = self.context["request"]
-        post_detail_url = request.build_absolute_uri(reverse("posts-detail", kwargs={"slug": obj.slug}))
+        post_detail_url = request.build_absolute_uri(
+            reverse("posts-detail", kwargs={"slug": obj.slug})
+        )
         return post_detail_url
-    
+
     def get_timestamp(self, obj: Post):
-        
+
         return obj.timestamp.strftime("%c")
-    
+
     def get_comments(self, obj):
         request = self.context["request"]
         query = int(request.query_params.get("comment_limits", 2))
@@ -106,12 +117,12 @@ class PostSerializer(serializers.ModelSerializer):
         return Truncator(obj.content).words(20)
 
     def create(self, validated_data):
-        
+
         user = self.context["request"].user
         return Post.objects.create(user=user, **validated_data)
-    
+
     def update(self, instance, validated_data):
-        
+
         with transaction.atomic():
             for key, value in validated_data.items():
                 setattr(instance, key, value)
