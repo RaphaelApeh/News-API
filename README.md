@@ -20,7 +20,10 @@ source bin/scritps/activate
 ```
 - **Installing requirements**
 ```bash
-pip install -r requiremets.txt
+# for development
+pip install -r requirements/local.txt
+# for production
+pip install -r requirements/production.txt
 ```
 - Working dir
 ```bash
