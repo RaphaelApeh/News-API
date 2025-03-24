@@ -1,7 +1,0 @@
-Django>5.1
-Pillow
-djangorestframework
-django-taggit
-django-silk
-python-decouple
-djangorestframework-simplejwt
