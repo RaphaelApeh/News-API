@@ -1,6 +1,5 @@
 from django.db import models
 from django.template import loader
-from django_filters.rest_framework.backends import DjangoFilterBackend
 from django.core.exceptions import FieldError
 from rest_framework.filters import BaseFilterBackend
 
