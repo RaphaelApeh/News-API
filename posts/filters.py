@@ -1,9 +1,13 @@
 from django.db import models
+from django.template import loader
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from django.core.exceptions import FieldError
 from rest_framework.filters import BaseFilterBackend
 
 
 class PostFilterBackend(BaseFilterBackend):
+
+    template_name = "posts/form.html"
 
     def _query_params(self, request, /):
         return request.query_params.copy()
@@ -24,4 +28,15 @@ class PostFilterBackend(BaseFilterBackend):
             except FieldError:
                 return queryset.none()
         return queryset.all()
+    
+    def to_html(self, request, queryset, view):
+
+        if not getattr(view, "search_fields", None):
+            return ""
+        template = loader.get_template(self.template_name)
+        query_params = getattr(view, "query_params", "search")
+        context = {
+            "query_params": query_params
+        }
+        return template.render(context, request)
                 
